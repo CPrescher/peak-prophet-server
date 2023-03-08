@@ -1,11 +1,18 @@
 import numpy as np
 
 from lmfit.models import LinearModel, QuadraticModel, PolynomialModel, GaussianModel, LorentzianModel, PseudoVoigtModel
+from lmfit import Parameters
 
 from peak_prophet_server.pattern import Pattern
 
 
 def read_data(data_dict):
+    """
+    Read the data from the input dictionary and return the pattern, model and parameters
+    :param data_dict: the input dictionary containing the pattern, peaks and background
+    :return: pattern, model, parameters
+    :rtype: (Pattern, CompositeModel, Parameters)
+    """
     pattern = read_pattern(data_dict['pattern'])
     peaks, peaks_parameters = read_peaks(data_dict['peaks'])
     bkg_model, bkg_params = read_background(data_dict['background'])
@@ -20,10 +27,16 @@ def read_data(data_dict):
     return pattern, model, params
 
 
-def read_background(bkg_dict):
-    parameter_values = {p['name']: p['value'] for p in bkg_dict['parameters']}
+def read_background(background_dict):
+    """
+    Read the background from the input dictionary and return the model and parameters
+    :param background_dict: dictionary containing the background type and parameters
+    :return: background model, background parameters
+    :rtype: (Model, Parameters)
+    """
+    parameter_values = {p['name']: p['value'] for p in background_dict['parameters']}
 
-    match bkg_dict['type']:
+    match background_dict['type']:
         case 'linear':
             model = LinearModel(prefix='bkg_')
             params = model.make_params(intercept=parameter_values['intercept'],
@@ -36,9 +49,9 @@ def read_background(bkg_dict):
                                        c=parameter_values['c'])
             return model, params
         case 'polynomial':
-            model = PolynomialModel(degree=bkg_dict['degree'], prefix='bkg_')
+            model = PolynomialModel(degree=background_dict['degree'], prefix='bkg_')
             params = model.make_params()
-            for i in range(bkg_dict['degree'] + 1):
+            for i in range(background_dict['degree'] + 1):
                 params[f'bkg_c{i}'].set(value=parameter_values[f'c{i}'])
             return model, params
         case _:
@@ -46,10 +59,22 @@ def read_background(bkg_dict):
 
 
 def read_pattern(pattern_dict):
+    """
+    Read the pattern from the input dictionary.
+    :param pattern_dict: dictionary containing the pattern x and y values
+    :return: the extracted pattern
+    :rtype: Pattern
+    """
     return Pattern(x=pattern_dict['x'], y=pattern_dict['y'])
 
 
 def read_peaks(peaks_list):
+    """
+    Read the peaks from the input dictionary peak part.
+    :param peaks_list:
+    :return: list of peak models, list of parameters
+    :rtype: (list[Model], list[Parameters])
+    """
     peaks = []
     parameters = []
     for i, peak_dict in enumerate(peaks_list):
@@ -60,6 +85,13 @@ def read_peaks(peaks_list):
 
 
 def read_peak(peak_dict, prefix=''):
+    """
+    Read a single peak from the input dictionary.
+    :param peak_dict: dictionary containing the peak type and parameters
+    :param prefix: used for the lmfit model prefix for this particular pexis (e.g. p0_), prevents name clashes
+    :return: peak model, parameters
+    :rtype: (Model, Parameters)
+    """
     parameter_values = {p['name']: p['value'] for p in peak_dict['parameters']}
 
     match peak_dict['type']:
