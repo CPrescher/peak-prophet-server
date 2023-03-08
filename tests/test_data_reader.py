@@ -2,10 +2,11 @@ import unittest
 import json
 
 import numpy as np
+from lmfit import CompositeModel
 from lmfit.models import LinearModel, QuadraticModel, PolynomialModel, GaussianModel, LorentzianModel, \
     PseudoVoigtModel
 
-from peak_prophet_server.data_reader import read_bkg, read_pattern, read_peaks, read_peak
+from peak_prophet_server.data_reader import read_background, read_pattern, read_peaks, read_peak, read_data
 
 
 class TestDataReader(unittest.TestCase):
@@ -14,31 +15,31 @@ class TestDataReader(unittest.TestCase):
             self.input_data = f.read()
         self.input_dict = json.loads(self.input_data)
 
-    def test_read_linear_bkg(self):
+    def test_read_linear_background(self):
         input_dict = \
             {'parameters':
                  [{'name': 'slope', 'value': 3, 'fit': True, 'min': None, 'max': None},
                   {'name': 'intercept', 'value': 1, 'fit': True, 'min': None, 'max': None}],
              'type': 'linear'}
-        bkg_model, bkg_parameter = read_bkg(input_dict)
-        self.assertIsInstance(bkg_model, LinearModel)
-        self.assertEqual(bkg_parameter['bkg_slope'].value, 3)
-        self.assertEqual(bkg_parameter['bkg_intercept'].value, 1)
+        background_model, background_parameter = read_background(input_dict)
+        self.assertIsInstance(background_model, LinearModel)
+        self.assertEqual(background_parameter['bkg_slope'].value, 3)
+        self.assertEqual(background_parameter['bkg_intercept'].value, 1)
 
-    def test_read_quadratic_bkg(self):
+    def test_read_quadratic_background(self):
         input_dict = \
             {'parameters':
                  [{'name': 'a', 'value': 0, 'fit': True, 'min': None, 'max': None},
                   {'name': 'b', 'value': 2, 'fit': True, 'min': None, 'max': None},
                   {'name': 'c', 'value': 3, 'fit': True, 'min': None, 'max': None}],
              'type': 'quadratic'}
-        bkg_model, bkg_parameter = read_bkg(input_dict)
-        self.assertIsInstance(bkg_model, QuadraticModel)
-        self.assertEqual(bkg_parameter['bkg_a'].value, 0)
-        self.assertEqual(bkg_parameter['bkg_b'].value, 2)
-        self.assertEqual(bkg_parameter['bkg_c'].value, 3)
+        background_model, background_parameter = read_background(input_dict)
+        self.assertIsInstance(background_model, QuadraticModel)
+        self.assertEqual(background_parameter['bkg_a'].value, 0)
+        self.assertEqual(background_parameter['bkg_b'].value, 2)
+        self.assertEqual(background_parameter['bkg_c'].value, 3)
 
-    def test_read_polynomial_bkg_with_3_params(self):
+    def test_read_polynomial_background_with_3_params(self):
         input_dict = \
             {'parameters':
                  [{'name': 'c0', 'value': 0, 'fit': True, 'min': None, 'max': None},
@@ -46,14 +47,14 @@ class TestDataReader(unittest.TestCase):
                   {'name': 'c2', 'value': 3, 'fit': True, 'min': None, 'max': None}],
              'type': 'polynomial',
              'degree': 2}
-        bkg_model, bkg_parameter = read_bkg(input_dict)
-        self.assertIsInstance(bkg_model, PolynomialModel)
+        background_model, background_parameter = read_background(input_dict)
+        self.assertIsInstance(background_model, PolynomialModel)
 
-        self.assertEqual(bkg_parameter['bkg_c0'].value, 0)
-        self.assertEqual(bkg_parameter['bkg_c1'].value, 2)
-        self.assertEqual(bkg_parameter['bkg_c2'].value, 3)
+        self.assertEqual(background_parameter['bkg_c0'].value, 0)
+        self.assertEqual(background_parameter['bkg_c1'].value, 2)
+        self.assertEqual(background_parameter['bkg_c2'].value, 3)
 
-    def test_read_polynomial_bkg_with_7_params(self):
+    def test_read_polynomial_background_with_7_params(self):
         input_dict = \
             {'parameters':
                  [{'name': 'c0', 'value': 0, 'fit': True, 'min': None, 'max': None},
@@ -65,11 +66,11 @@ class TestDataReader(unittest.TestCase):
                   {'name': 'c6', 'value': 6, 'fit': True, 'min': None, 'max': None}],
              'type': 'polynomial',
              'degree': 6}
-        bkg_model, bkg_parameter = read_bkg(input_dict)
-        self.assertIsInstance(bkg_model, PolynomialModel)
+        background_model, background_parameter = read_background(input_dict)
+        self.assertIsInstance(background_model, PolynomialModel)
 
         for i in range(7):
-            self.assertEqual(bkg_parameter[f'bkg_c{i}'].value, i)
+            self.assertEqual(background_parameter[f'bkg_c{i}'].value, i)
 
     def test_read_pattern(self):
         input_dict = \
@@ -153,3 +154,42 @@ class TestDataReader(unittest.TestCase):
         self.assertEqual(parameters['pv_fwhm'].value, 0.5)
         self.assertEqual(parameters['pv_amplitude'].value, 10)
         self.assertEqual(parameters['pv_fraction'].value, 0.5)
+
+    def test_read_data(self):
+        input_dict = \
+            {'name': 'test_data',
+             'peaks': [{"type": "Gaussian",
+                        "parameters": [
+                            {"name": "Position", "value": 1},
+                            {"name": "FWHM", "value": 0.5},
+                            {"name": "Amplitude", "value": 10}],
+                        },
+                       {"type": "Gaussian",
+                        "parameters": [
+                            {"name": "Position", "value": 3},
+                            {"name": "FWHM", "value": 1},
+                            {"name": "Amplitude", "value": 10}],
+                        },
+                       ],
+             'background': {'type': 'linear',
+                            'parameters': [{'name': 'intercept', 'value': 0.5, 'fit': True, 'min': None, 'max': None},
+                                           {'name': 'slope', 'value': 1, 'fit': True, 'min': None, 'max': None}]},
+             'pattern': {'name': 'test_pattern',
+                         'x': [1, 2, 3, 4, 5],
+                         'y': [1, 2, 3, 4, 5]}
+             }
+
+        pattern, model, params = read_data(input_dict)
+
+        self.assertEqual(pattern.x, [1, 2, 3, 4, 5])
+        self.assertEqual(pattern.y, [1, 2, 3, 4, 5])
+        self.assertIsInstance(model, CompositeModel)
+        self.assertIsInstance(model.left.left, LinearModel)
+        self.assertIsInstance(model.left.right, GaussianModel)
+        self.assertIsInstance(model.right, GaussianModel)
+        self.assertEqual(len(params.valuesdict()), 12)
+        params_dict = params.valuesdict()
+        self.assertEqual(params_dict['bkg_intercept'], 0.5)
+        self.assertEqual(params_dict['bkg_slope'], 1)
+        self.assertEqual(params_dict['p0_center'], 1)
+        self.assertEqual(params_dict['p1_center'], 3)

@@ -5,7 +5,22 @@ from lmfit.models import LinearModel, QuadraticModel, PolynomialModel, GaussianM
 from peak_prophet_server.pattern import Pattern
 
 
-def read_bkg(bkg_dict):
+def read_data(data_dict):
+    pattern = read_pattern(data_dict['pattern'])
+    peaks, peaks_parameters = read_peaks(data_dict['peaks'])
+    bkg_model, bkg_params = read_background(data_dict['background'])
+    model = bkg_model
+    for peak in peaks:
+        model += peak
+
+    params = bkg_params
+    for peak_params in peaks_parameters:
+        params.update(peak_params)
+
+    return pattern, model, params
+
+
+def read_background(bkg_dict):
     parameter_values = {p['name']: p['value'] for p in bkg_dict['parameters']}
 
     match bkg_dict['type']:
@@ -64,7 +79,7 @@ def read_peak(peak_dict, prefix=''):
             model = PseudoVoigtModel(prefix=prefix)
             params = model.make_params(amplitude=parameter_values['Amplitude'],
                                        center=parameter_values['Position'],
-                                       sigma=parameter_values['FWHM']/2,
+                                       sigma=parameter_values['FWHM'] / 2,
                                        fraction=parameter_values['Eta'])
             return model, params
 
