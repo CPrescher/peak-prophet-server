@@ -85,19 +85,19 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             [{"type": "Gaussian",
               "parameters": [
-                  {"name": "Position", "value": 1},
+                  {"name": "Center", "value": 1},
                   {"name": "FWHM", "value": 0.5},
                   {"name": "Amplitude", "value": 10}],
               },
              {"type": "Lorentzian",
               "parameters": [
-                  {"name": "Position", "value": 3},
+                  {"name": "Center", "value": 3},
                   {"name": "FWHM", "value": 1},
                   {"name": "Amplitude", "value": 10}],
               },
              {"type": "PseudoVoigt",
               "parameters": [
-                  {"name": "Position", "value": 6},
+                  {"name": "Center", "value": 6},
                   {"name": "FWHM", "value": 2},
                   {"name": "Amplitude", "value": 10},
                   {"name": "Eta", "value": 10}],
@@ -115,7 +115,7 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             {"type": "Gaussian",
              "parameters": [
-                 {"name": "Position", "value": 1},
+                 {"name": "Center", "value": 1},
                  {"name": "FWHM", "value": 0.5},
                  {"name": "Amplitude", "value": 10}]
              }
@@ -129,7 +129,7 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             {"type": "Lorentzian",
              "parameters": [
-                 {"name": "Position", "value": 1},
+                 {"name": "Center", "value": 1},
                  {"name": "FWHM", "value": 0.5},
                  {"name": "Amplitude", "value": 10}]
              }
@@ -143,7 +143,7 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             {"type": "PseudoVoigt",
              "parameters": [
-                 {"name": "Position", "value": 1},
+                 {"name": "Center", "value": 1},
                  {"name": "FWHM", "value": 0.5},
                  {"name": "Amplitude", "value": 10},
                  {"name": "Eta", "value": 0.5}]
@@ -160,13 +160,13 @@ class TestDataReader(unittest.TestCase):
             {'name': 'test_data',
              'peaks': [{"type": "Gaussian",
                         "parameters": [
-                            {"name": "Position", "value": 1},
+                            {"name": "Center", "value": 1},
                             {"name": "FWHM", "value": 0.5},
                             {"name": "Amplitude", "value": 10}],
                         },
                        {"type": "Gaussian",
                         "parameters": [
-                            {"name": "Position", "value": 3},
+                            {"name": "Center", "value": 3},
                             {"name": "FWHM", "value": 1},
                             {"name": "Amplitude", "value": 10}],
                         },

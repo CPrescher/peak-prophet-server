@@ -11,7 +11,7 @@ def read_data(data_dict):
     Read the data from the input dictionary and return the pattern, model and parameters
     :param data_dict: the input dictionary containing the pattern, peaks and background
     :return: pattern, model, parameters
-    :rtype: (Pattern, CompositeModel, Parameters)
+    :rtype: (Pattern, Model, Parameters)
     """
     pattern = read_pattern(data_dict['pattern'])
     peaks, peaks_parameters = read_peaks(data_dict['peaks'])
@@ -94,26 +94,28 @@ def read_peak(peak_dict, prefix=''):
     """
     parameter_values = {p['name']: p['value'] for p in peak_dict['parameters']}
 
-    match peak_dict['type']:
-        case 'Gaussian':
+    match peak_dict['type'].lower():
+        case 'gaussian':
             model = GaussianModel(prefix=prefix)
             params = model.make_params(amplitude=parameter_values['Amplitude'],
-                                       center=parameter_values['Position'],
+                                       center=parameter_values['Center'],
                                        sigma=convert_fwhm_to_sigma(parameter_values['FWHM']))
             return model, params
-        case 'Lorentzian':
+        case 'lorentzian':
             model = LorentzianModel(prefix=prefix)
             params = model.make_params(amplitude=parameter_values['Amplitude'],
-                                       center=parameter_values['Position'],
+                                       center=parameter_values['Center'],
                                        sigma=parameter_values['FWHM'] * 0.5)
             return model, params
-        case 'PseudoVoigt':
+        case 'pseudovoigt':
             model = PseudoVoigtModel(prefix=prefix)
             params = model.make_params(amplitude=parameter_values['Amplitude'],
-                                       center=parameter_values['Position'],
+                                       center=parameter_values['Center'],
                                        sigma=parameter_values['FWHM'] / 2,
                                        fraction=parameter_values['Eta'])
             return model, params
+        case _:
+            raise ValueError(f'Unknown peak type: {peak_dict["type"]}')
 
 
 def convert_fwhm_to_sigma(fwhm):
