@@ -7,6 +7,7 @@ from peak_prophet_server.sio_events import connect_events
 
 ############################################
 # OLD WAY to start server:
+# from sanic import Sanic
 # sio = socketio.AsyncServer(async_mode='sanic', cors_allowed_origins="*")
 # connect_events(sio, sm)
 #

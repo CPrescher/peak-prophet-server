@@ -12,7 +12,7 @@ def connect_events(sio, session_manager):
     @sio.on('fit')
     def fit(sid, data):
         print(sid, 'fitting')
-        fit_manager = FitManager()
+        fit_manager = FitManager(sio)
         result = fit_manager.process_request(data)
         run_coroutine(
             sio.emit('fit_result', result, room=sid)

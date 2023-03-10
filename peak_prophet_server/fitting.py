@@ -1,10 +1,14 @@
 import json
 
 from .data_reader import read_data
+from .util import run_coroutine
 
 
 class FitManager:
     data_dict = None
+
+    def __init__(self, sio=None):
+        self.sio = sio
 
     def process_request(self, request):
         self.data_dict = json.loads(request)
@@ -28,9 +32,18 @@ class FitManager:
         }
 
     def iter_cb(self, params, iter, resid, *args, **kwargs):
-        bkg_output = create_background_output(self.data_dict['background'], params)
-        peaks_output = create_peaks_output(self.data_dict['peaks'], params)
-        print(bkg_output)
+        print("iter_cb: ", iter)
+        if self.sio is None:
+            return
+        progress_step = {
+            'iter': iter,
+            'resid': resid.tolist(),
+            'result': {
+                'background': create_background_output(self.data_dict['background'], params),
+                'peaks': create_peaks_output(self.data_dict['peaks'], params),
+            }
+        }
+        run_coroutine(self.sio.emit('fit_progress', progress_step))
 
 
 def create_background_output(background_input, params):
