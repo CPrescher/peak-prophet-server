@@ -97,22 +97,22 @@ def read_peak(peak_dict, prefix=''):
     match peak_dict['type'].lower():
         case 'gaussian':
             model = GaussianModel(prefix=prefix)
-            params = model.make_params(amplitude=parameter_values['Amplitude'],
-                                       center=parameter_values['Center'],
-                                       sigma=convert_fwhm_to_sigma(parameter_values['FWHM']))
+            params = model.make_params(amplitude=parameter_values['amplitude'],
+                                       center=parameter_values['center'],
+                                       sigma=convert_fwhm_to_sigma(parameter_values['fwhm']))
             return model, params
         case 'lorentzian':
             model = LorentzianModel(prefix=prefix)
-            params = model.make_params(amplitude=parameter_values['Amplitude'],
-                                       center=parameter_values['Center'],
-                                       sigma=parameter_values['FWHM'] * 0.5)
+            params = model.make_params(amplitude=parameter_values['amplitude'],
+                                       center=parameter_values['center'],
+                                       sigma=parameter_values['fwhm'] * 0.5)
             return model, params
         case 'pseudovoigt':
             model = PseudoVoigtModel(prefix=prefix)
-            params = model.make_params(amplitude=parameter_values['Amplitude'],
-                                       center=parameter_values['Center'],
-                                       sigma=parameter_values['FWHM'] / 2,
-                                       fraction=parameter_values['Eta'])
+            params = model.make_params(amplitude=parameter_values['amplitude'],
+                                       center=parameter_values['center'],
+                                       sigma=parameter_values['fwhm'] / 2,
+                                       fraction=parameter_values['fraction'])
             return model, params
         case _:
             raise ValueError(f'Unknown peak type: {peak_dict["type"]}')

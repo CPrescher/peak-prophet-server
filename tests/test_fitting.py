@@ -34,17 +34,17 @@ class TestFitting(unittest.TestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'Amplitude', 'value': 9},
-                        {'name': 'Center', 'value': 2.2},
-                        {'name': 'FWHM', 'value': 0.3}
+                        {'name': 'amplitude', 'value': 9},
+                        {'name': 'center', 'value': 2.2},
+                        {'name': 'fwhm', 'value': 0.3}
                     ]
                 },
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'Amplitude', 'value': 10.5},
-                        {'name': 'Center', 'value': 3.9},
-                        {'name': 'FWHM', 'value': 0.1}
+                        {'name': 'amplitude', 'value': 10.5},
+                        {'name': 'center', 'value': 3.9},
+                        {'name': 'fwhm', 'value': 0.1}
                     ]
                 }
             ],

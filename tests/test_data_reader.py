@@ -85,21 +85,21 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             [{"type": "Gaussian",
               "parameters": [
-                  {"name": "Center", "value": 1},
-                  {"name": "FWHM", "value": 0.5},
-                  {"name": "Amplitude", "value": 10}],
+                  {"name": "center", "value": 1},
+                  {"name": "fwhm", "value": 0.5},
+                  {"name": "amplitude", "value": 10}],
               },
              {"type": "Lorentzian",
               "parameters": [
-                  {"name": "Center", "value": 3},
-                  {"name": "FWHM", "value": 1},
-                  {"name": "Amplitude", "value": 10}],
+                  {"name": "center", "value": 3},
+                  {"name": "fwhm", "value": 1},
+                  {"name": "amplitude", "value": 10}],
               },
              {"type": "PseudoVoigt",
               "parameters": [
-                  {"name": "Center", "value": 6},
-                  {"name": "FWHM", "value": 2},
-                  {"name": "Amplitude", "value": 10},
+                  {"name": "center", "value": 6},
+                  {"name": "fwhm", "value": 2},
+                  {"name": "amplitude", "value": 10},
                   {"name": "Eta", "value": 10}],
               },
              ]
@@ -115,9 +115,9 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             {"type": "Gaussian",
              "parameters": [
-                 {"name": "Center", "value": 1},
-                 {"name": "FWHM", "value": 0.5},
-                 {"name": "Amplitude", "value": 10}]
+                 {"name": "center", "value": 1},
+                 {"name": "fwhm", "value": 0.5},
+                 {"name": "amplitude", "value": 10}]
              }
         peak, parameters = read_peak(input_dict, prefix='test_')
         self.assertIsInstance(peak, GaussianModel)
@@ -129,9 +129,9 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             {"type": "Lorentzian",
              "parameters": [
-                 {"name": "Center", "value": 1},
-                 {"name": "FWHM", "value": 0.5},
-                 {"name": "Amplitude", "value": 10}]
+                 {"name": "center", "value": 1},
+                 {"name": "fwhm", "value": 0.5},
+                 {"name": "amplitude", "value": 10}]
              }
         peak, parameters = read_peak(input_dict, prefix='lor_')
         self.assertIsInstance(peak, LorentzianModel)
@@ -143,9 +143,9 @@ class TestDataReader(unittest.TestCase):
         input_dict = \
             {"type": "PseudoVoigt",
              "parameters": [
-                 {"name": "Center", "value": 1},
-                 {"name": "FWHM", "value": 0.5},
-                 {"name": "Amplitude", "value": 10},
+                 {"name": "center", "value": 1},
+                 {"name": "fwhm", "value": 0.5},
+                 {"name": "amplitude", "value": 10},
                  {"name": "Eta", "value": 0.5}]
              }
         peak, parameters = read_peak(input_dict, prefix='pv_')
@@ -160,15 +160,15 @@ class TestDataReader(unittest.TestCase):
             {'name': 'test_data',
              'peaks': [{"type": "Gaussian",
                         "parameters": [
-                            {"name": "Center", "value": 1},
-                            {"name": "FWHM", "value": 0.5},
-                            {"name": "Amplitude", "value": 10}],
+                            {"name": "center", "value": 1},
+                            {"name": "fwhm", "value": 0.5},
+                            {"name": "amplitude", "value": 10}],
                         },
                        {"type": "Gaussian",
                         "parameters": [
-                            {"name": "Center", "value": 3},
-                            {"name": "FWHM", "value": 1},
-                            {"name": "Amplitude", "value": 10}],
+                            {"name": "center", "value": 3},
+                            {"name": "fwhm", "value": 1},
+                            {"name": "amplitude", "value": 10}],
                         },
                        ],
              'background': {'type': 'linear',
