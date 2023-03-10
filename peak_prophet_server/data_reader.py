@@ -111,7 +111,7 @@ def read_peak(peak_dict, prefix=''):
             model = PseudoVoigtModel(prefix=prefix)
             params = model.make_params(amplitude=parameter_values['amplitude'],
                                        center=parameter_values['center'],
-                                       sigma=parameter_values['fwhm'] / 2,
+                                       sigma=parameter_values['fwhm'] * 0.5,
                                        fraction=parameter_values['fraction'])
             return model, params
         case _:
