@@ -1,5 +1,6 @@
 from asyncio.coroutines import iscoroutine
 import asyncio
+import threading
 
 
 def run_coroutine(coroutine):

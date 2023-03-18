@@ -1,20 +1,24 @@
+import asyncio
 import json
 
 from .data_reader import read_data
-from .util import run_coroutine
 
 
 class FitManager:
     data_dict = None
+    current_progress = None
+    result = None
 
     def __init__(self, sio=None):
         self.sio = sio
 
-    def process_request(self, request):
+    async def process_request(self, request):
         self.data_dict = json.loads(request)
         pattern, model, params = read_data(self.data_dict)
 
-        out = model.fit(pattern.y, params, x=pattern.x, iter_cb=self.iter_cb)
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, self.fit, pattern, model, params)
+        out = self.result
 
         background_result = create_background_output(self.data_dict['background'], out.params)
         peaks_result = create_peaks_output(self.data_dict['peaks'], out.params)
@@ -31,11 +35,16 @@ class FitManager:
             }
         }
 
+    def fit(self, pattern, model, params):
+        self.result = model.fit(pattern.y, params, x=pattern.x, iter_cb=self.iter_cb)
+
     def iter_cb(self, params, iter, resid, *args, **kwargs):
         print("iter_cb: ", iter)
         if self.sio is None:
+            print("sio is None")
             return
-        progress_step = {
+
+        self.current_progress = {
             'iter': iter,
             'resid': resid.tolist(),
             'result': {
@@ -43,7 +52,6 @@ class FitManager:
                 'peaks': create_peaks_output(self.data_dict['peaks'], params),
             }
         }
-        run_coroutine(self.sio.emit('fit_progress', progress_step))
 
 
 def create_background_output(background_input, params):

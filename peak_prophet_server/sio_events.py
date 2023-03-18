@@ -2,23 +2,27 @@ from peak_prophet_server.fitting import FitManager
 from .util import run_coroutine
 
 
-def connect_events(sio, session_manager):
+def connect_events(sio):
     @sio.on('connect')
-    def connect(sid, data):
-        session_manager.sessions[sid] = {}
+    async def connect(sid, _):
         print(sid, 'connected!')
+        await sio.save_session(sid, {'fit_manager': FitManager(sio)})
         return sid
 
     @sio.on('fit')
-    def fit(sid, data):
+    async def fit(sid, data):
         print(sid, 'fitting')
-        fit_manager = FitManager(sio)
-        result = fit_manager.process_request(data)
-        run_coroutine(
-            sio.emit('fit_result', result, room=sid)
-        )
+        session = await sio.get_session(sid)
+        fit_manager = session['fit_manager']
+        result = await fit_manager.process_request(data)
+
+        run_coroutine(sio.emit('fit_result', result))
+
+    @sio.on('get_progress')
+    async def get_progress(sid, _):
+        session = await sio.get_session(sid)
+        await sio.emit('fit_progress', session['fit_manager'].current_progress)
 
     @sio.on('disconnect')
-    def disconnect(sid):
+    async def disconnect(sid):
         print(sid, 'disconnected!')
-        del session_manager.sessions[sid]

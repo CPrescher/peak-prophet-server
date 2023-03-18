@@ -425,7 +425,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -458,6 +458,43 @@ class TestFitting(unittest.TestCase):
         ]
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
+
+    def test_failing_fit(self):
+        background_model = LinearModel(prefix='bkg_')
+        params = background_model.make_params(intercept=1, slope=0.2)
+
+        peak1_model = GaussianModel(prefix='p0_')
+        params.update(peak1_model.make_params(amplitude=3, center=1, sigma=convert_fwhm_to_sigma(0.2)))
+
+        peak2_model = LorentzianModel(prefix='p1_')
+        params.update(peak2_model.make_params(amplitude=7, center=5, sigma=0.4 * 0.5))
+
+        peak3_model = PseudoVoigtModel(prefix='p2_')
+        params.update(peak3_model.make_params(amplitude=5, center=8, sigma=0.3 * 0.5, fraction=0.3))
+
+        pattern_model = background_model + peak1_model + peak2_model + peak3_model
+
+        pattern_y = pattern_model.eval(params, x=self.pattern_x) + self.error_array
+
+        input_dict = {
+            'pattern': {
+                'name': 'test',
+                'x': self.pattern_x.tolist(),
+                'y': pattern_y.tolist()
+            },
+            'peaks': [
+                {
+                    'type': 'gaussian',
+                    'parameters': [
+                        {'name': 'amplitude', 'value': 10.5},
+                        {'name': 'center', 'value': i * 0.5},
+                        {'name': 'fwhm', 'value': 0.2}
+                    ]
+                } for i in range(30)],
+            'background': self.bkg_dict
+        }
+
+        fit_result = self.fit(input_dict)
 
     def fit(self, input_dict):
         input_request = json.dumps(input_dict)
