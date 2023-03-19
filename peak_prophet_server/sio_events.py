@@ -18,6 +18,13 @@ def connect_events(sio):
 
         run_coroutine(sio.emit('result', result))
 
+    @sio.on('stop')
+    async def stop(sid):
+        print(sid, 'stopping')
+        session = await sio.get_session(sid)
+        fit_manager = session['fit_manager']
+        fit_manager.stop = True
+
     @sio.on('request_progress')
     async def get_progress(sid, _):
         session = await sio.get_session(sid)

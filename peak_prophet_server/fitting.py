@@ -8,6 +8,7 @@ class FitManager:
     data_dict = None
     current_progress = None
     result = None
+    stop = False
 
     def __init__(self, sio=None):
         self.sio = sio
@@ -52,6 +53,7 @@ class FitManager:
                 'peaks': create_peaks_output(self.data_dict['peaks'], params),
             }
         }
+        return self.stop
 
 
 def create_background_output(background_input, params):
