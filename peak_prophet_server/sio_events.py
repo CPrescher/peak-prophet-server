@@ -16,12 +16,12 @@ def connect_events(sio):
         fit_manager = session['fit_manager']
         result = await fit_manager.process_request(data)
 
-        run_coroutine(sio.emit('fit_result', result))
+        run_coroutine(sio.emit('result', result))
 
-    @sio.on('get_progress')
+    @sio.on('request_progress')
     async def get_progress(sid, _):
         session = await sio.get_session(sid)
-        await sio.emit('fit_progress', session['fit_manager'].current_progress)
+        await sio.emit('progress', session['fit_manager'].current_progress)
 
     @sio.on('disconnect')
     async def disconnect(sid):
