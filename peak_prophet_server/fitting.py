@@ -1,5 +1,6 @@
 import asyncio
 import json
+import numpy as np
 
 from .data_reader import read_data
 
@@ -9,16 +10,17 @@ class FitManager:
     current_progress = None
     result = None
     stop = False
+    pattern = None
 
     def __init__(self, sio=None):
         self.sio = sio
 
     async def process_request(self, request):
         self.data_dict = json.loads(request)
-        pattern, model, params = read_data(self.data_dict)
+        self.pattern, model, params = read_data(self.data_dict)
 
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, self.fit, pattern, model, params)
+        await loop.run_in_executor(None, self.fit, self.pattern, model, params)
         out = self.result
 
         background_result = create_background_output(self.data_dict['background'], out.params)
@@ -26,13 +28,13 @@ class FitManager:
 
         return {
             'success': out.success,
-            'message': 'Fitting successful',
+            'message': out.message,
+            'chi2': out.chisqr,
+            'red_chi2': out.redchi,
+            'nfev': out.nfev,
             'result': {
                 'background': background_result,
                 'peaks': peaks_result,
-                'chi2': out.chisqr,
-                'redchi': out.redchi,
-                'nfev': out.nfev,
             }
         }
 
@@ -45,9 +47,14 @@ class FitManager:
             print("sio is None")
             return
 
+        chi2 = np.sum(resid ** 2)
+        red_chi2 = chi2 / (len(self.pattern.y) - 1)
+
         self.current_progress = {
             'iter': iter,
             'resid': resid.tolist(),
+            'chi2': chi2,
+            'red_chi2': red_chi2,
             'result': {
                 'background': create_background_output(self.data_dict['background'], params),
                 'peaks': create_peaks_output(self.data_dict['peaks'], params),
