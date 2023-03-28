@@ -32,4 +32,7 @@ def connect_events(sio):
 
     @sio.on('disconnect')
     async def disconnect(sid):
+        session = await sio.get_session(sid)
+        fit_manager = session['fit_manager']
+        fit_manager.stop = True
         print(sid, 'disconnected!')
