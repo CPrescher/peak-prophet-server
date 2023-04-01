@@ -20,7 +20,7 @@ from peak_prophet_server.sio_events import connect_events
 
 sio = socketio.AsyncServer(async_mode='asgi',
                            cors_allowed_origins=["https://peakprophet.com", "http://peakprophet.com/",
-                                                 "  https://peakprophet.web.app", "http://localhost:4200"],
+                                                 "https://peakprophet.web.app", "http://localhost:4200"],
                            allowEIO3=True)
 
 connect_events(sio)
