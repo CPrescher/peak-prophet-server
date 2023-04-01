@@ -12,8 +12,8 @@ class FitManager:
     stop = False
     pattern = None
 
-    def __init__(self, sio=None):
-        self.sio = sio
+    def __init__(self, sid=None):
+        self.sid = sid
 
     async def process_request(self, request):
         self.data_dict = json.loads(request)
@@ -22,6 +22,7 @@ class FitManager:
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, self.fit, self.pattern, model, params)
         out = self.result
+        print(self.sid, "fit finished")
 
         background_result = create_background_output(self.data_dict['background'], out.params)
         peaks_result = create_peaks_output(self.data_dict['peaks'], out.params)
@@ -42,9 +43,8 @@ class FitManager:
         self.result = model.fit(pattern.y, params, x=pattern.x, iter_cb=self.iter_cb)
 
     def iter_cb(self, params, iter, resid, *args, **kwargs):
-        print("iter_cb: ", iter)
-        if self.sio is None:
-            print("sio is None")
+        if self.sid is None:
+            print("sid is None")
             return
 
         chi2 = np.sum(resid ** 2)
