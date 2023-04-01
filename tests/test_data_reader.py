@@ -1,5 +1,4 @@
 import unittest
-import json
 
 import numpy as np
 from lmfit import CompositeModel
@@ -10,17 +9,13 @@ from peak_prophet_server.data_reader import read_background, read_pattern, read_
 
 
 class TestDataReader(unittest.TestCase):
-    def setUp(self) -> None:
-        with open('example_request.json', 'r') as f:
-            self.input_data = f.read()
-        self.input_dict = json.loads(self.input_data)
-
     def test_read_linear_background(self):
         input_dict = \
-            {'parameters':
-                 [{'name': 'slope', 'value': 3, 'fit': True, 'min': None, 'max': None},
-                  {'name': 'intercept', 'value': 1, 'fit': True, 'min': None, 'max': None}],
-             'type': 'linear'}
+            {'parameters': [
+                {'name': 'slope', 'value': 3, 'fit': True, 'min': None, 'max': None},
+                {'name': 'intercept', 'value': 1, 'fit': True, 'min': None, 'max': None}
+            ],
+                'type': 'linear'}
         background_model, background_parameter = read_background(input_dict)
         self.assertIsInstance(background_model, LinearModel)
         self.assertEqual(background_parameter['bkg_slope'].value, 3)
@@ -100,7 +95,7 @@ class TestDataReader(unittest.TestCase):
                   {"name": "center", "value": 6},
                   {"name": "fwhm", "value": 2},
                   {"name": "amplitude", "value": 10},
-                  {"name": "Eta", "value": 10}],
+                  {"name": "fraction", "value": 0.3}],
               },
              ]
 
@@ -146,7 +141,7 @@ class TestDataReader(unittest.TestCase):
                  {"name": "center", "value": 1},
                  {"name": "fwhm", "value": 0.5},
                  {"name": "amplitude", "value": 10},
-                 {"name": "Eta", "value": 0.5}]
+                 {"name": "fraction", "value": 0.5}]
              }
         peak, parameters = read_peak(input_dict, prefix='pv_')
         self.assertIsInstance(peak, PseudoVoigtModel)

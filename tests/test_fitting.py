@@ -8,7 +8,7 @@ from peak_prophet_server.data_reader import convert_fwhm_to_sigma
 from peak_prophet_server.fitting import FitManager
 
 
-class TestFitting(unittest.TestCase):
+class TestFitting(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.num_points = 501
@@ -23,7 +23,7 @@ class TestFitting(unittest.TestCase):
             ]
         }
 
-    def test_fitting_single_gaussian(self):
+    async def test_fitting_single_gaussian(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -54,7 +54,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -71,7 +71,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_fitting_single_lorentzian(self):
+    async def test_fitting_single_lorentzian(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -101,7 +101,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -118,7 +118,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_fitting_single_pseudovoigt(self):
+    async def test_fitting_single_pseudovoigt(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -153,7 +153,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -171,7 +171,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_fit_two_gaussians(self):
+    async def test_fit_two_gaussians(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -213,7 +213,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -237,7 +237,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_fit_gaussian_and_lorentzian(self):
+    async def test_fit_gaussian_and_lorentzian(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -279,7 +279,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -303,7 +303,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_fit_gaussian_and_pseudovoigt(self):
+    async def test_fit_gaussian_and_pseudovoigt(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -346,7 +346,7 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        fit_result = await self.fit(input_dict)
 
         self.compare_background_results(fit_result['background'])
 
@@ -371,7 +371,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_fit_gaussian_and_lorentzian_and_pseudovoigt(self):
+    async def test_fit_gaussian_and_lorentzian_and_pseudovoigt(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -459,7 +459,7 @@ class TestFitting(unittest.TestCase):
 
         self.compare_peak_results(fit_result['peaks'], expected_peak_data)
 
-    def test_failing_fit(self):
+    async def test_failing_fit(self):
         background_model = LinearModel(prefix='bkg_')
         params = background_model.make_params(intercept=1, slope=0.2)
 
@@ -494,19 +494,30 @@ class TestFitting(unittest.TestCase):
             'background': self.bkg_dict
         }
 
-        fit_result = self.fit(input_dict)
+        import asyncio
 
-    def fit(self, input_dict):
+        input_request = json.dumps(input_dict)
+        fit_manager = FitManager("TEST-SID")
+        loop = asyncio.get_event_loop()
+
+        def stop_fit():
+            print("Stopping fit")
+            fit_manager.stop = True
+
+        loop.call_later(1, stop_fit)
+        fit_response = await fit_manager.process_request(input_request)
+
+        self.assertEqual(fit_response['success'], False)
+
+    async def fit(self, input_dict):
         input_request = json.dumps(input_dict)
 
-        fit_manager = FitManager()
-        fit_response = fit_manager.process_request(input_request)
-
-        print(fit_response)
+        fit_manager = FitManager("TEST-SID")
+        fit_response = await fit_manager.process_request(input_request)
 
         fit_result = fit_response['result']
         self.assertTrue(fit_response['success'])
-        self.assertEqual(fit_response['message'], 'Fitting successful')
+        self.assertEqual(fit_response['message'], 'Fit succeeded.')
 
         return fit_result
 
