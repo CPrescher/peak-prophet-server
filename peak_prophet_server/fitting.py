@@ -72,8 +72,10 @@ def create_background_output(background_input, params):
         output['parameters'].append({
             'name': param['name'],
             'value': params[f'bkg_{param["name"]}'].value,
-            'error': params[f'bkg_{param["name"]}'].stderr
+            'error': params[f'bkg_{param["name"]}'].stderr,
+            'vary': params[f'bkg_{param["name"]}'].vary,
         })
+
     return output
 
 
@@ -88,6 +90,9 @@ def create_peaks_output(peaks_input, params):
             output[i]['parameters'].append({
                 'name': param['name'],
                 'value': params[f'p{i}_{param["name"].lower()}'].value,
-                'error': params[f'p{i}_{param["name"].lower()}'].stderr
+                'error': params[f'p{i}_{param["name"].lower()}'].stderr,
+                'vary': params[f'p{i}_{param["name"].lower()}'].vary,
             })
+            if param['name'] == 'fwhm':
+                output[i]['parameters'][-1]['vary'] = params[f'p{i}_sigma'].vary
     return output
