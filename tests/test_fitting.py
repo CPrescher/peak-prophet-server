@@ -4,7 +4,7 @@ import json
 import numpy as np
 from lmfit.models import LinearModel, GaussianModel, LorentzianModel, PseudoVoigtModel
 
-from peak_prophet_server.data_reader import convert_fwhm_to_sigma
+from peak_prophet_server.data_reader import convert_gaussian_fwhm_to_sigma
 from peak_prophet_server.fitting import FitManager
 
 
@@ -28,7 +28,7 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
         params = background_model.make_params(intercept=1, slope=0.2)
 
         peak1_model = GaussianModel(prefix='p0_')
-        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_fwhm_to_sigma(0.2)))
+        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_gaussian_fwhm_to_sigma(0.2)))
 
         model = background_model + peak1_model
 
@@ -44,9 +44,9 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -62,9 +62,9 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'gaussian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -91,9 +91,9 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'lorentzian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -109,9 +109,9 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'lorentzian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -143,10 +143,10 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'pseudovoigt',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2},
-                        {'name': 'fraction', 'value': 0.5}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fraction', 'value': 0.5, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -161,10 +161,10 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'pseudovoigt',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2},
-                    {'name': 'fraction', 'value': 0.3}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fraction', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -176,10 +176,10 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
         params = background_model.make_params(intercept=1, slope=0.2)
 
         peak1_model = GaussianModel(prefix='p0_')
-        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_fwhm_to_sigma(0.2)))
+        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_gaussian_fwhm_to_sigma(0.2)))
 
         peak2_model = GaussianModel(prefix='p1_')
-        params.update(peak2_model.make_params(amplitude=10, center=5, sigma=convert_fwhm_to_sigma(0.3)))
+        params.update(peak2_model.make_params(amplitude=10, center=5, sigma=convert_gaussian_fwhm_to_sigma(0.3)))
 
         model = background_model + peak1_model + peak2_model
 
@@ -195,17 +195,17 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 5.1},
-                        {'name': 'fwhm', 'value': 0.3}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 5.1, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -221,16 +221,16 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'gaussian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                 ]
             }, {
                 'type': 'gaussian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 5},
-                    {'name': 'fwhm', 'value': 0.3}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 5, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -242,7 +242,7 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
         params = background_model.make_params(intercept=1, slope=0.2)
 
         peak1_model = GaussianModel(prefix='p0_')
-        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_fwhm_to_sigma(0.2)))
+        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_gaussian_fwhm_to_sigma(0.2)))
 
         peak2_model = LorentzianModel(prefix='p1_')
         params.update(peak2_model.make_params(amplitude=10, center=5, sigma=0.3 * 0.5))
@@ -261,17 +261,17 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
                 {
                     'type': 'lorentzian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 5.1},
-                        {'name': 'fwhm', 'value': 0.3}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 5.1, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -287,16 +287,16 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'gaussian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                 ]
             }, {
                 'type': 'lorentzian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 5},
-                    {'name': 'fwhm', 'value': 0.3}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 5, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -308,7 +308,7 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
         params = background_model.make_params(intercept=1, slope=0.2)
 
         peak1_model = GaussianModel(prefix='p0_')
-        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_fwhm_to_sigma(0.2)))
+        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_gaussian_fwhm_to_sigma(0.2)))
 
         peak2_model = PseudoVoigtModel(prefix='p1_')
         params.update(peak2_model.make_params(amplitude=10, center=5, sigma=0.3 * 0.5, fraction=0.3))
@@ -327,18 +327,18 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
                 {
                     'type': 'pseudovoigt',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 5.1},
-                        {'name': 'fwhm', 'value': 0.3},
-                        {'name': 'fraction', 'value': 0.4}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 5.1, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fraction', 'value': 0.4, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -354,17 +354,17 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'gaussian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                 ]
             }, {
                 'type': 'pseudovoigt',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 5},
-                    {'name': 'fwhm', 'value': 0.3},
-                    {'name': 'fraction', 'value': 0.3}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 5, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fraction', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -376,7 +376,7 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
         params = background_model.make_params(intercept=1, slope=0.2)
 
         peak1_model = GaussianModel(prefix='p0_')
-        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_fwhm_to_sigma(0.2)))
+        params.update(peak1_model.make_params(amplitude=10, center=2, sigma=convert_gaussian_fwhm_to_sigma(0.2)))
 
         peak2_model = LorentzianModel(prefix='p1_')
         params.update(peak2_model.make_params(amplitude=10, center=5, sigma=0.4 * 0.5))
@@ -398,26 +398,26 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 2.2},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 2.2, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
                 {
                     'type': 'lorentzian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 5},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
                 {
                     'type': 'pseudovoigt',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': 8},
-                        {'name': 'fwhm', 'value': 0.3},
-                        {'name': 'fraction', 'value': 0.4}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': 8, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fraction', 'value': 0.4, 'vary': True, 'min': None, 'max': None}
                     ]
                 },
             ],
@@ -433,26 +433,26 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
             {
                 'type': 'gaussian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 2},
-                    {'name': 'fwhm', 'value': 0.2}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 2, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                 ]
             },
             {
                 'type': 'lorentzian',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 5},
-                    {'name': 'fwhm', 'value': 0.4}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 5, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.4, 'vary': True, 'min': None, 'max': None}
                 ]
             },
             {
                 'type': 'pseudovoigt',
                 'parameters': [
-                    {'name': 'amplitude', 'value': 10},
-                    {'name': 'center', 'value': 8},
-                    {'name': 'fwhm', 'value': 0.3},
-                    {'name': 'fraction', 'value': 0.3}
+                    {'name': 'amplitude', 'value': 10, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'center', 'value': 8, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fwhm', 'value': 0.3, 'vary': True, 'min': None, 'max': None},
+                    {'name': 'fraction', 'value': 0.3, 'vary': True, 'min': None, 'max': None}
                 ]
             },
         ]
@@ -464,7 +464,7 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
         params = background_model.make_params(intercept=1, slope=0.2)
 
         peak1_model = GaussianModel(prefix='p0_')
-        params.update(peak1_model.make_params(amplitude=3, center=1, sigma=convert_fwhm_to_sigma(0.2)))
+        params.update(peak1_model.make_params(amplitude=3, center=1, sigma=convert_gaussian_fwhm_to_sigma(0.2)))
 
         peak2_model = LorentzianModel(prefix='p1_')
         params.update(peak2_model.make_params(amplitude=7, center=5, sigma=0.4 * 0.5))
@@ -486,9 +486,9 @@ class TestFitting(unittest.IsolatedAsyncioTestCase):
                 {
                     'type': 'gaussian',
                     'parameters': [
-                        {'name': 'amplitude', 'value': 10.5},
-                        {'name': 'center', 'value': i * 0.5},
-                        {'name': 'fwhm', 'value': 0.2}
+                        {'name': 'amplitude', 'value': 10.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'center', 'value': i * 0.5, 'vary': True, 'min': None, 'max': None},
+                        {'name': 'fwhm', 'value': 0.2, 'vary': True, 'min': None, 'max': None}
                     ]
                 } for i in range(30)],
             'background': self.bkg_dict

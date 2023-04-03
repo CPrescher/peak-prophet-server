@@ -92,31 +92,65 @@ def read_peak(peak_dict, prefix=''):
     :return: peak model, parameters
     :rtype: (Model, Parameters)
     """
-    parameter_values = {p['name']: p['value'] for p in peak_dict['parameters']}
 
+    # Get the parameter names, values, vary, min and max
+    parameter_names = [p['name'] for p in peak_dict['parameters']]
+    parameter_values = {p['name']: p['value'] for p in peak_dict['parameters']}
+    parameter_vary = {p['name']: p['vary'] for p in peak_dict['parameters']}
+    parameter_min = {p['name']: p['min'] for p in peak_dict['parameters']}
+    parameter_max = {p['name']: p['max'] for p in peak_dict['parameters']}
+
+    # Create the model and parameters based on the peak type
     match peak_dict['type'].lower():
         case 'gaussian':
             model = GaussianModel(prefix=prefix)
-            params = model.make_params(amplitude=parameter_values['amplitude'],
-                                       center=parameter_values['center'],
-                                       sigma=convert_fwhm_to_sigma(parameter_values['fwhm']))
-            return model, params
         case 'lorentzian':
             model = LorentzianModel(prefix=prefix)
-            params = model.make_params(amplitude=parameter_values['amplitude'],
-                                       center=parameter_values['center'],
-                                       sigma=parameter_values['fwhm'] * 0.5)
-            return model, params
         case 'pseudovoigt':
             model = PseudoVoigtModel(prefix=prefix)
-            params = model.make_params(amplitude=parameter_values['amplitude'],
-                                       center=parameter_values['center'],
-                                       sigma=parameter_values['fwhm'] * 0.5,
-                                       fraction=parameter_values['fraction'])
-            return model, params
+        case _:
+            raise ValueError(f'Unknown peak type: {peak_dict["type"]}')
+    params = model.make_params()
+
+    # Set the parameters
+    for parameter_name in parameter_names:
+        if parameter_name == 'fwhm':
+            continue
+        params[prefix + parameter_name].set(value=parameter_values[parameter_name],
+                                            vary=parameter_vary[parameter_name],
+                                            min=parameter_min[parameter_name],
+                                            max=parameter_max[parameter_name])
+
+    # Set the fwhm parameter based on the peak type (gaussian and lorentzian have different fwhm definitions)
+    match peak_dict['type'].lower():
+        case 'gaussian':
+            params[prefix + 'sigma'].set(value=convert_gaussian_fwhm_to_sigma(parameter_values['fwhm']),
+                                         vary=parameter_vary['fwhm'],
+                                         min=convert_gaussian_fwhm_to_sigma(parameter_min['fwhm']),
+                                         max=convert_gaussian_fwhm_to_sigma(parameter_max['fwhm']))
+        case 'lorentzian':
+            params[prefix + 'sigma'].set(value=convert_lorentzian_fwhm_to_sigma(parameter_values['fwhm']),
+                                         vary=parameter_vary['fwhm'],
+                                         min=convert_lorentzian_fwhm_to_sigma(parameter_min['fwhm']),
+                                         max=convert_lorentzian_fwhm_to_sigma(parameter_max['fwhm']))
+        case 'pseudovoigt':
+            params[prefix + 'sigma'].set(value=convert_lorentzian_fwhm_to_sigma(parameter_values['fwhm']),
+                                         vary=parameter_vary['fwhm'],
+                                         min=convert_lorentzian_fwhm_to_sigma(parameter_min['fwhm']),
+                                         max=convert_lorentzian_fwhm_to_sigma(parameter_max['fwhm']))
         case _:
             raise ValueError(f'Unknown peak type: {peak_dict["type"]}')
 
+    return model, params
 
-def convert_fwhm_to_sigma(fwhm):
+
+def convert_gaussian_fwhm_to_sigma(fwhm):
+    if fwhm is None:
+        return None
     return fwhm / (2 * (2 * np.log(2)) ** 0.5)
+
+
+def convert_lorentzian_fwhm_to_sigma(fwhm):
+    if fwhm is None:
+        return None
+    return fwhm * 0.5
