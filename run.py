@@ -1,3 +1,4 @@
+import os
 import uvicorn
 import socketio
 from peak_prophet_server.sio_events import connect_events
@@ -18,14 +19,23 @@ from peak_prophet_server.sio_events import connect_events
 ############################################
 
 
-sio = socketio.AsyncServer(async_mode='asgi',
-                           cors_allowed_origins=["https://peakprophet.com", "http://peakprophet.com/",
-                                                 "https://peakprophet.web.app", "http://localhost:4200"],
-                           allowEIO3=True)
+sio = socketio.AsyncServer(
+    async_mode="asgi",
+    cors_allowed_origins=[
+        "https://peakprophet.com",
+        "http://peakprophet.com/",
+        "https://peakprophet.web.app",
+        "http://localhost:4200",
+    ],
+    allowEIO3=True,
+)
 
 connect_events(sio)
 
 app = socketio.ASGIApp(sio)
 
-if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8009)
+if __name__ == "__main__":
+    print("Starting server...")
+    # get the port from the environment variable
+    port = os.getenv("PORT", 8009)
+    uvicorn.run(app, host="0.0.0.0", port=port)
